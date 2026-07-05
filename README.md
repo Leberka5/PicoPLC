@@ -2,9 +2,9 @@
 
 <img src="img/PicoPLC.png" width=500>
 
-PicoPLC is development project which is meant to be simple hardware font-end for the 
-Raspberry Pi Pico (first gen). 
-The following features are planned:
+PicoPLC is a development project which represents an extension board for the Raspberry Pi Pico (first gen). 
+It is meant as a simple controller for tinkerers.
+Planned features:
 * Logic analyzer
 * PWM generation
 * Protocol based actions (mainly I²C, SPI, UART)
@@ -18,10 +18,11 @@ PlatformIO but will be replaced with CMake eventually.
 
 # Hardware
 
-The schematics and footprint has been created with <a href="https://librepcb.org/"> LibrePCB </a>.
+The schematics and footprint has been created with <a href="https://librepcb.org/"> LibrePCB </a>. For 
+production <a href="https://aisler.net/de"> Aisler </a> has been chosen.
 The bottom left sided 3 pin jack is connected to the Pico's ADC. The 2x8 pin jack could be used for future extension 
 boards (e.g.: buttons, sensors, LoRa, IR, ...). The two pins located over the red switch are used to power 
-the board using a battery (important: do not use without charge controller circuit!).
+the board using a battery (Important: Do not use without charge controller circuit! Link is below.).
 
 ## Schematic
 
@@ -44,8 +45,10 @@ the board using a battery (important: do not use without charge controller circu
 * 10 kΩ Widerstand: https://www.reichelt.de/de/de/shop/produkt/widerstand_metalloxyd_10_kohm_0207_1_0_w_5_-1779
 
 ## Battery extension:
+
 * Laderegler: https://www.az-delivery.de/products/az-delivery-laderegler-tp4056-micro-usb?_pos=2&_sid=d151976ab&_ss=r
 * Akku: https://www.reichelt.de/de/de/shop/produkt/li-ion_akku_soldered_333278_500_mah_3_7_v-373542
 
 ## Future improvements:
+
 * MOSFET: https://www.reichelt.de/de/de/shop/produkt/mosfet_p-ch_-60v_-18_7a_0_13r_to-220-257465
