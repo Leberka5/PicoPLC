@@ -1,69 +1,55 @@
 #include "include/Gui.h"
-#include <utility>
+#include "include/tree/tree.h"
 
 
-// pseudo init of Gui's static member (real init is in Gui::init())
+/**********************************
+ * init static member of Gui class
+ **********************************/
 Adafruit_ST7789 Gui::lcd = Adafruit_ST7789(SPI_CS, LCD_DC, LCD_RST);
-ScreenMenu* Gui::menuCurrent = &screenMain;
-ScreenMenu Gui::screenMain = ScreenMenu(lcd, nullptr, "", { });
-ScreenError Gui::screenError = ScreenError(lcd, nullptr, "");
+tree<ScreenMenu> Gui::menuTree = tree<ScreenMenu>();
+nptr<ScreenMenu> Gui::nodeCurr = nullptr;
+ScreenMenu* Gui::menuCurr = nullptr;
+ScreenError Gui::screenError = ScreenError(lcd);
+bool Gui::inErrorState = false;
 
-ScreenError& ScreenError::operator=(const ScreenError& other)
-{
-    if (this == &other)
-        return *this;
-    // copy ALL member of GuiMenu
-    this->lcd = other.lcd;
-    this->menuTitle = other.menuTitle;
-    this->menuParent = other.menuParent;
-    this->colorBg = other.colorBg;
 
-    return *this;
-}
-
-Screen::Screen(Adafruit_ST7789& lcd, ScreenMenu* menuParent, std::string menuTitle) :
+/**********************************
+ * Screen base class methods
+ **********************************/
+Screen::Screen(Adafruit_ST7789& lcd) :
     lcd(lcd),
-    menuParent(menuParent),
-    menuTitle(menuTitle)
-{
-    colorBg = COLOR_BLACK;
-}
+    colorBg(COLOR_BLACK) { }
 
 
-ScreenError::ScreenError(Adafruit_ST7789& lcd, ScreenMenu* menuParent, std::string menuTitle) :
-    Screen(lcd, menuParent, std::move(menuTitle))
-{
-
-}
-
+/**********************************
+ * ScreenError methods
+ **********************************/
+ScreenError::ScreenError(Adafruit_ST7789& lcd) :
+    Screen(lcd) { }
 
 void ScreenError::drawError(std::string errorMsg)
 {
     errorLog.emplace_back(errorMsg);
-    errorMsgCurr = errorMsg;
+    this->errorMsg = errorMsg;
     draw();
 }
 
 void ScreenError::draw()
 {
-    lcd.fillScreen(COLOR_BLACK);
     lcd.setTextColor(COLOR_RED);
     lcd.setCursor(0, 50);
-    lcd.write(errorMsgCurr.c_str());
+    lcd.write(errorMsg.c_str());
 }
+
 
 /**********************************
  * methods of class GuiMenu
  **********************************/
-ScreenMenu::ScreenMenu(Adafruit_ST7789& lcd, ScreenMenu* menuParent, std::string menuTitle, std::vector<std::string> menuEntries) :
-    Screen(lcd, menuParent, std::move(menuTitle)),
-    menuEntries(std::move(menuEntries)),
-    currSelection(0)
-{
-    // add "Back" button for all menus, except main menu
-    if (menuParent != nullptr)
-        this->menuEntries.emplace_back("Back");
-}
+ScreenMenu::ScreenMenu(Adafruit_ST7789& lcd, std::string menuTitle, std::vector<std::string> menuEntries) :
+    Screen(lcd),
+    menuTitle(menuTitle),
+    menuEntries(menuEntries),
+    currSelection(0) { }
 
 ScreenMenu& ScreenMenu::operator=(const ScreenMenu& other)
 {
@@ -72,8 +58,6 @@ ScreenMenu& ScreenMenu::operator=(const ScreenMenu& other)
     // copy ALL member of GuiMenu
     this->lcd = other.lcd;
     this->menuTitle = other.menuTitle;
-    this->menuEntries = other.menuEntries;
-    this->subMenus = other.subMenus;
     this->currSelection = other.currSelection;
     this->colorBg = other.colorBg;
 
@@ -85,7 +69,7 @@ void ScreenMenu::draw()
     uint8_t currCursorY = PADDING_TITLE_Y;
     // draw menu title
     lcd.setTextColor(COLOR_GREEN_2);
-    lcd.setTextSize(FONT_12x16); // title'd be better lookin' if bigger, but results in less space duh
+    lcd.setTextSize(FONT_12x16);
     lcd.setCursor(PADDING_TITLE_X, currCursorY);
     lcd.write(menuTitle.c_str());
     // draw menu entries
@@ -103,7 +87,7 @@ void ScreenMenu::draw()
     }
 }
 
-void ScreenMenu::drawSelection(MenuActions actionMenuSel)
+void ScreenMenu::drawSelUpdate(MenuActions actionMenuSel)
 {
     // clear out old selection
     uint8_t oldCursorY = currSelection * MENU_SELECTION_HEIGHT + TITLE_HEIGHT;
@@ -132,73 +116,65 @@ void ScreenMenu::drawSelection(MenuActions actionMenuSel)
     }
 }
 
-void ScreenMenu::addSubMenu(ScreenMenu newSubMenu) { subMenus.emplace_back(newSubMenu); }
+uint16_t ScreenMenu::getCurrSelection() { return currSelection; }
 
-ScreenMenu* ScreenMenu::getSubMenu(uint32_t index) { return &subMenus.at(index); }
-
-ScreenMenu* ScreenMenu::getParentMenu() { return menuParent; }
-
-uint32_t ScreenMenu::getCurrSelection() { return currSelection; }
-
-uint32_t ScreenMenu::getNumSubMenus() { return menuEntries.size(); }
+uint16_t ScreenMenu::getNumSubMenus() { return menuEntries.size(); }
 
 
 /**********************************
  * methods of class Gui
  **********************************/
+void Gui::enterMenu()
+{
+    // TODO: optimize: ISR must stay small (without inErrorState logic µC crashes ...)
+
+    // ScreenMenu*                    node*
+    if (menuCurr->getNumSubMenus() == nodeCurr->getNumNodes())
+    {
+        int32_t menuIndex = menuCurr->getCurrSelection();
+        nodeCurr = nodeCurr->getNode(menuIndex);
+        menuCurr = nodeCurr->getDataPtr();
+        clearScreen();
+        menuCurr->draw();
+    }
+    else
+    {
+        inErrorState = true;
+    }
+}
+
+void Gui::changeSelection(MenuActions actionGui) { menuCurr->drawSelUpdate(actionGui); }
+
+void Gui::clearScreen() { lcd.fillScreen(COLOR_BLACK); }
+
 void Gui::init()
 {
-    // (0) main menu
-    screenMain = ScreenMenu(lcd, nullptr, "Main Menu", {
-        "Timed Actions",
-        "INT Actions",
-        "ADC",
-        "PWM",
-        "I2C" });
-    // (1): setup menu "Timed Actions"
-    ScreenMenu menuTimedActions = ScreenMenu(lcd, &screenMain, "Timed Actions", {
-       "Add Timer",
-       "Delete Timer" });
-    screenMain.addSubMenu(menuTimedActions);
-    // TODO: (2): setup menu "INT Actions"
-
-    // create screen to display (and log) error messages
-    screenError = ScreenError(lcd, nullptr, "Error");
-
-    // setup Gui class
-    menuCurrent = &screenMain;
+    // setup screens
+    initMenus();
     // init lcd
-    lcd = Adafruit_ST7789(SPI_CS, LCD_DC, LCD_RST);
     lcd.init(SCREEN_WIDTH, SCREEN_HEIGHT, SPI_MODE2);
     lcd.setRotation(ROTATION_UP);
     delay(50);
     lcd.fillScreen(COLOR_BLACK);
     lcd.setTextColor(ST77XX_WHITE);
     lcd.setTextSize(FONT_12x16);
-    // draw parent menu
-    menuCurrent->draw();
-    menuCurrent->drawSelection(INIT);
+    // draw main menu
+    menuCurr->draw();
+    menuCurr->drawSelUpdate(INIT);
 }
 
-// callback func for encoder button press (called in ISR --> keep it simple)
-void Gui::enterMenu()
+void Gui::initMenus()
 {
-    // change current menu
-    if (menuCurrent->getCurrSelection() == menuCurrent->getNumSubMenus() - 1)
-        menuCurrent = menuCurrent->getParentMenu();
-    else
-        menuCurrent = menuCurrent->getSubMenu(menuCurrent->getCurrSelection());
-    if (menuCurrent == nullptr)
-        Gui::screenError.drawError("Screen not implemented yet!");
-    // clear screen
-    lcd.fillScreen(COLOR_BLACK);
-    // draw new menu
-    menuCurrent->draw();
-    menuCurrent->drawSelection(INIT);
+    nodeCurr = menuTree.addNode(ScreenMenu(
+        lcd, "Main Menu", std::vector<std::string>({
+        "(1) Analog Read",
+        "(2) Protocols"} )));
+    nodeCurr->addNode(ScreenMenu(
+        lcd, "Analog Read", std::vector<std::string>({
+        "test"})));
+    nodeCurr->addNode(ScreenMenu(
+        lcd, "Protocols", std::vector<std::string>({
+        "test"})));
+    // TODO: recursively add "Back" button/node to submenus/subnodes
+    menuCurr = nodeCurr->getDataPtr();
 }
-
-void Gui::changeSelection(MenuActions actionGui)
-{
-    menuCurrent->drawSelection(actionGui);
-}
-

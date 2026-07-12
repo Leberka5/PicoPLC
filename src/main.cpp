@@ -2,38 +2,45 @@
 #include "include/Gui.h"
 #include "include/Encoder.h"
 
-// global vars
-Encoder encoder;
-
 // ISR: rotary encoder button press
 INTERRUPT isrEncoderButton()
 {
-    bool isDebounced = (millis() - encoder.timeLastBtnPress) > DEBOUNCE_DELAY;
+    // TODO: keep as small as possible
+    bool isDebounced = (millis() - Encoder::timeLastBtnPress) > DEBOUNCE_DELAY;
     if (isDebounced)
     {
         Gui::enterMenu();
-        encoder.timeLastBtnPress = millis();
+        Encoder::timeLastBtnPress = millis();
     }
 }
 
 // setup GUI, GPIOs, INTs, ...
 void setup()
 {
-    // init lcd and draw menu
+    // init lcd and encoder and draw menu
+    Encoder::init();
     Gui::init();
     // config encoder
     pinMode(ENCODER_A, INPUT);
     pinMode(ENCODER_B, INPUT);
     pinMode(ENCODER_BUTTON, INPUT_PULLDOWN);
+    pinMode(pins::LED, OUTPUT);
     attachInterrupt(digitalPinToInterrupt(ENCODER_BUTTON), isrEncoderButton, RISING);
 }
 
 // main loop
 void loop()
 {
-    EncoderAction actionEnc = encoder.readInput();
+    EncoderAction actionEnc = Encoder::readInput();
     if (actionEnc == RIGHT)
         Gui::changeSelection(UP);
     else if (actionEnc == LEFT)
         Gui::changeSelection(DOWN);
+
+    if (Gui::inErrorState)
+    {
+        Gui::clearScreen();
+        Gui::screenError.drawError("Submenus != Subnodes");
+        delay(60000);
+    }
 }

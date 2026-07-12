@@ -24,16 +24,16 @@ enum EncoderAction
 class Encoder
 {
 public:
-    Encoder();
-    EncoderAction readInput();
+    static void init();
+    static EncoderAction readInput();
     // button vars
-    uint64_t timeLastBtnPress;
+    static uint64_t timeLastBtnPress;
 private:
     // encoder vars
-    int32_t counter = 0;
-    int32_t lastStateA;
-    int32_t currStateA;
-    uint64_t timeLastAction = 0;
+    static int32_t counter;
+    static int32_t lastStateA;
+    static int32_t currStateA;
+    static uint64_t timeLastAction;
 };
 
 #endif //DEVBOARD_ENCODER_H

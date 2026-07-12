@@ -1,9 +1,15 @@
 #ifndef GUI_H
 #define GUI_H
 
-#include "include/defines.h"
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7789.h>
+#include "include/defines.h"
+#include "tree/tree.h"
+
+enum ErrorCodes
+{
+    ERROR_NO_SUB_MENUS = -1     // must stay -1 (l. at  ScreenMenu::getCurrSelection)
+};
 
 // just some mappings for options of Adafruit_ST7789
 enum LcdNumerics
@@ -57,67 +63,74 @@ enum MenuActions
 class ScreenMenu;
 class ScreenError;
 
-
+/**********************************
+ * base class for ScreenMenu, ScreenError
+ * override draw() in oder to use it
+ **********************************/
 class Screen
 {
 public:
-    Screen(Adafruit_ST7789& lcd, ScreenMenu* menuParent, std::string menuTitle);
+    Screen(Adafruit_ST7789& lcd);
     virtual ~Screen() = default; // virtual in order to call derived class's destructor when deleted
     virtual void draw() = 0;
 protected:
     Adafruit_ST7789& lcd;
-    ScreenMenu* menuParent;
-    std::string menuTitle;
     uint16_t colorBg;
 };
 
+/**********************************
+ * display errors:
+ *  - trying to enter not defined sub menu
+ **********************************/
 class ScreenError : public Screen
 {
 public:
-    ScreenError(Adafruit_ST7789& lcd, ScreenMenu* menuParent, std::string menuTitle);
-    ScreenError& operator=(const ScreenError&);
+    ScreenError(Adafruit_ST7789& lcd);
     void drawError(std::string errorMsg);
     void draw() override;
 private:
-    std::string errorMsgCurr;
+    std::string errorMsg;
     std::vector<std::string> errorLog;
 };
 
+/**********************************
+ * class used to display menus (row structured)
+ **********************************/
 class ScreenMenu : public Screen
 {
 public:
-    ScreenMenu(Adafruit_ST7789& lcd, ScreenMenu* menuParent, std::string menuTitle, std::vector<std::string> menuEntries);
+    ScreenMenu(Adafruit_ST7789& lcd, std::string menuTitle, std::vector<std::string> menuEntries);
     ScreenMenu& operator=(const ScreenMenu& other);
     void draw() override;                           // draw them friggin menu entries
-    void drawSelection(MenuActions actionMenuSel);  // draw curr encoder sel
-    void addSubMenu(ScreenMenu newSubMenu);
-    ScreenMenu* getSubMenu(uint32_t index);
-    ScreenMenu* getParentMenu();
-    uint32_t getCurrSelection();        // ret curr enc sel
-    uint32_t getNumSubMenus();
+    void drawSelUpdate(MenuActions actionMenuSel);  // draw curr encoder sel
+    uint16_t getCurrSelection();        // ret curr enc sel
+    uint16_t getNumSubMenus();
 private:
     // TODO: adjust copy constructor for every new member
-    std::vector<ScreenMenu> subMenus;          // sub menus of curr menu
+    std::string menuTitle;
     std::vector<std::string> menuEntries;   // sub menu names
-    int64_t currSelection;                  // curr encoder selection
+    int16_t currSelection;                  // curr encoder selection
 };
 
 
-/*
+/**********************************
  * supervisor class (therefore static)
- * containing all its menus and lcd instance
- */
+ **********************************/
 class Gui
 {
 public:
     static void init();
-    static void enterMenu();                           // callback func for btn press
-    static void changeSelection(MenuActions actionGui);  // wrapper for GuiMenu::drawSelection
+    static void enterMenu(); // callback func for btn press (keep as small as possible)
+    static void changeSelection(MenuActions actionGui); // wrapper for GuiMenu::drawSelection
+    static void clearScreen();
+    static ScreenError screenError;
+    static bool inErrorState;       // true if entering menu which does not exist
 private:
+    static void initMenus();
     static Adafruit_ST7789 lcd;
-    static ScreenMenu* menuCurrent;    // currently displayed menu
-    static ScreenMenu screenMain;        // the most  parent menu of all
-    static ScreenError screenError;        // the most  parent menu of all
+    static tree<ScreenMenu> menuTree;
+    static nptr<ScreenMenu> nodeCurr;
+    static ScreenMenu* menuCurr;
 };
 
 #endif //GUI_H

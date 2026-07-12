@@ -4,14 +4,20 @@
 
 PicoPLC is a development project which represents an extension board for the Raspberry Pi Pico (first gen). 
 It is meant as a simple controller for tinkerers.
-Planned features:
+
+## Planned features:
 * Logic analyzer
 * PWM generation
 * Protocol based actions (mainly I²C, SPI, UART)
 * Actions based on:
   * ADC
   * Interrupts
-  * Timings
+  * Timings  
+
+## Current TODOs:
+* impl UART controlled reset mechanism to ret in BOOTSEL mode
+* back button
+* custom interfaces (timeseries, gauge, set int)
 
 Currently just a HW draft and a basic SW-layer has been accomplished. The build system is based on
 PlatformIO but will be replaced with CMake eventually.
