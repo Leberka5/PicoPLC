@@ -48,10 +48,7 @@ template<typename T>
 T tree<T>::node::getData() { return data; }
 
 template<typename T>
-T * tree<T>::node::getDataPtr()
-{
-    return &data;
-}
+T * tree<T>::node::getDataPtr() { return &data; }
 
 template<typename T>
 bool tree<T>::node::isLeaf() { return leaf; }

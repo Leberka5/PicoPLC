@@ -6,6 +6,7 @@
 #include "include/defines.h"
 #include "tree/tree.h"
 
+
 enum ErrorCodes
 {
     ERROR_NO_SUB_MENUS = -1     // must stay -1 (l. at  ScreenMenu::getCurrSelection)
@@ -15,7 +16,7 @@ enum ErrorCodes
 enum LcdNumerics
 {
     FONT_6x8 = 1,
-    FONT_12x16 = 2,
+    FONT_12x16 = 2, // currently in usee
     FONT_18x24 = 3,
     ROTATION_UP = 2
 };
@@ -42,10 +43,13 @@ enum GuiNumerics
     SCREEN_WIDTH = 240,
     SCREEN_HEIGHT = 240,
     FONT_HEIGHT_1 = 8,      // name refers to val LcdNumerics::FONT_XXX
-    FONT_HEIGHT_2 = 16,     // ...
-    FONT_HEIGHT_3 = 24,     // ...
+    FONT_HEIGHT_2 = 16,
+    FONT_HEIGHT_3 = 24,
+    FONT_WIDTH_1 = 6,       // name refers to val LcdNumerics::FONT_XXX
+    FONT_WIDTH_2 = 12,
+    FONT_WIDTH_3 = 18,
     PADDING_TITLE_X = 30,   // delta x for title
-    PADDING_TITLE_Y = 6,    // ... y ...
+    PADDING_TITLE_Y = 6,    // delta y for title
     PADDING_MENU_X = 4,
     PADDING_MENU_Y = 4,
     TITLE_HEIGHT = FONT_HEIGHT_3 + 2*PADDING_TITLE_Y,
@@ -74,6 +78,7 @@ public:
     virtual ~Screen() = default; // virtual in order to call derived class's destructor when deleted
     virtual void draw() = 0;
 protected:
+    uint16_t centerText(uint16_t numChars);
     Adafruit_ST7789& lcd;
     uint16_t colorBg;
 };
@@ -99,7 +104,7 @@ private:
 class ScreenMenu : public Screen
 {
 public:
-    ScreenMenu(Adafruit_ST7789& lcd, std::string menuTitle, std::vector<std::string> menuEntries);
+    ScreenMenu(Adafruit_ST7789& lcd, const std::string &menuTitle, const std::vector<std::string> &menuEntries);
     ScreenMenu& operator=(const ScreenMenu& other);
     void draw() override;                           // draw them friggin menu entries
     void drawSelUpdate(MenuActions actionMenuSel);  // draw curr encoder sel

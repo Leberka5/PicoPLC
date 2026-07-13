@@ -20,6 +20,8 @@ Screen::Screen(Adafruit_ST7789& lcd) :
     lcd(lcd),
     colorBg(COLOR_BLACK) { }
 
+uint16_t Screen::centerText(uint16_t numChars) { return (SCREEN_WIDTH / 2) - (numChars * FONT_WIDTH_2 / 2); }
+
 
 /**********************************
  * ScreenError methods
@@ -36,8 +38,13 @@ void ScreenError::drawError(std::string errorMsg)
 
 void ScreenError::draw()
 {
+    // 12px char len
+    std::string strHead = "Error:";
     lcd.setTextColor(COLOR_RED);
-    lcd.setCursor(0, 50);
+    lcd.setCursor(centerText(strHead.length()), 50);
+    lcd.write(strHead.c_str());
+    lcd.setTextColor(COLOR_YELLOW);
+    lcd.setCursor(0, 120);
     lcd.write(errorMsg.c_str());
 }
 
@@ -45,7 +52,7 @@ void ScreenError::draw()
 /**********************************
  * methods of class GuiMenu
  **********************************/
-ScreenMenu::ScreenMenu(Adafruit_ST7789& lcd, std::string menuTitle, std::vector<std::string> menuEntries) :
+ScreenMenu::ScreenMenu(Adafruit_ST7789& lcd, const std::string& menuTitle, const std::vector<std::string>& menuEntries) :
     Screen(lcd),
     menuTitle(menuTitle),
     menuEntries(menuEntries),
@@ -169,12 +176,17 @@ void Gui::initMenus()
         lcd, "Main Menu", std::vector<std::string>({
         "(1) Analog Read",
         "(2) Protocols"} )));
-    nodeCurr->addNode(ScreenMenu(
-        lcd, "Analog Read", std::vector<std::string>({
-        "test"})));
-    nodeCurr->addNode(ScreenMenu(
-        lcd, "Protocols", std::vector<std::string>({
-        "test"})));
+        nodeCurr->addNode(ScreenMenu(
+            lcd, "Analog Read", std::vector<std::string>({
+            "test"})));
+        nodeCurr->addNode(ScreenMenu(
+            lcd, "Protocols", std::vector<std::string>({
+            "test"})));
+
+    for (uint16_t iNode = 0; iNode < 2; ++iNode)
+        menuTree.getNode(iNode)->getData();
+
     // TODO: recursively add "Back" button/node to submenus/subnodes
+
     menuCurr = nodeCurr->getDataPtr();
 }
