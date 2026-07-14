@@ -91,7 +91,7 @@ class ScreenError : public Screen
 {
 public:
     ScreenError(Adafruit_ST7789& lcd);
-    void drawError(std::string errorMsg);
+    void setErrorMsg(std::string errorMsg);
     void draw() override;
 private:
     std::string errorMsg;
@@ -104,17 +104,17 @@ private:
 class ScreenMenu : public Screen
 {
 public:
-    ScreenMenu(Adafruit_ST7789& lcd, const std::string &menuTitle, const std::vector<std::string> &menuEntries);
+    ScreenMenu(Adafruit_ST7789& lcd, const std::string &menuTitle, const std::vector<std::string> &menuEntries, bool hasBackBtn = true);
     ScreenMenu& operator=(const ScreenMenu& other);
     void draw() override;                           // draw them friggin menu entries
     void drawSelUpdate(MenuActions actionMenuSel);  // draw curr encoder sel
-    uint16_t getCurrSelection();        // ret curr enc sel
+    uint16_t getMenuSelection();
     uint16_t getNumSubMenus();
+    std::string getSubmenuName(uint16_t index);
 private:
-    // TODO: adjust copy constructor for every new member
+    std::vector<std::string> submenuNames;
     std::string menuTitle;
-    std::vector<std::string> menuEntries;   // sub menu names
-    int16_t currSelection;                  // curr encoder selection
+    int16_t currSelection;
 };
 
 
@@ -127,15 +127,19 @@ public:
     static void init();
     static void enterMenu(); // callback func for btn press (keep as small as possible)
     static void changeSelection(MenuActions actionGui); // wrapper for GuiMenu::drawSelection
+    static void gotoMainMenu();
     static void clearScreen();
-    static ScreenError screenError;
-    static bool inErrorState;       // true if entering menu which does not exist
+    static bool hasMenuEntered();
+    static void changeMenu();
 private:
     static void initMenus();
+    static ScreenError screenError;
+    static ScreenMenu* menuCurr;
     static Adafruit_ST7789 lcd;
     static tree<ScreenMenu> menuTree;
     static nptr<ScreenMenu> nodeCurr;
-    static ScreenMenu* menuCurr;
+    static bool inErrorState;       // true if entering menu which does not exist
+    static bool menuEntered;
 };
 
 #endif //GUI_H

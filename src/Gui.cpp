@@ -11,6 +11,7 @@ nptr<ScreenMenu> Gui::nodeCurr = nullptr;
 ScreenMenu* Gui::menuCurr = nullptr;
 ScreenError Gui::screenError = ScreenError(lcd);
 bool Gui::inErrorState = false;
+bool Gui::menuEntered = false;
 
 
 /**********************************
@@ -29,11 +30,10 @@ uint16_t Screen::centerText(uint16_t numChars) { return (SCREEN_WIDTH / 2) - (nu
 ScreenError::ScreenError(Adafruit_ST7789& lcd) :
     Screen(lcd) { }
 
-void ScreenError::drawError(std::string errorMsg)
+void ScreenError::setErrorMsg(std::string errorMsg)
 {
     errorLog.emplace_back(errorMsg);
     this->errorMsg = errorMsg;
-    draw();
 }
 
 void ScreenError::draw()
@@ -52,11 +52,15 @@ void ScreenError::draw()
 /**********************************
  * methods of class GuiMenu
  **********************************/
-ScreenMenu::ScreenMenu(Adafruit_ST7789& lcd, const std::string& menuTitle, const std::vector<std::string>& menuEntries) :
+ScreenMenu::ScreenMenu(Adafruit_ST7789& lcd, const std::string& menuTitle, const std::vector<std::string>& menuEntries, bool hasBackBtn) :
     Screen(lcd),
     menuTitle(menuTitle),
-    menuEntries(menuEntries),
-    currSelection(0) { }
+    submenuNames(menuEntries),
+    currSelection(0)
+{
+    if (hasBackBtn)
+        this->submenuNames.emplace_back("Back");
+}
 
 ScreenMenu& ScreenMenu::operator=(const ScreenMenu& other)
 {
@@ -84,7 +88,7 @@ void ScreenMenu::draw()
     lcd.setTextSize(FONT_12x16);
     currCursorY = TITLE_HEIGHT + PADDING_MENU_Y;
     lcd.setCursor(PADDING_MENU_X, currCursorY);
-    for (std::string currMenuEntry : menuEntries)
+    for (std::string currMenuEntry : submenuNames)
     {
         // write menu entry
         lcd.write(currMenuEntry.c_str());
@@ -92,6 +96,8 @@ void ScreenMenu::draw()
         currCursorY += MENU_SELECTION_HEIGHT;
         lcd.setCursor(PADDING_MENU_X, currCursorY + PADDING_MENU_Y);
     }
+    drawSelUpdate(INIT);
+
 }
 
 void ScreenMenu::drawSelUpdate(MenuActions actionMenuSel)
@@ -110,8 +116,8 @@ void ScreenMenu::drawSelUpdate(MenuActions actionMenuSel)
     else if (actionMenuSel == DOWN)
         currSelection++;
     if (currSelection < 0)
-        currSelection = menuEntries.size() - 1;
-    else if (currSelection >= menuEntries.size())
+        currSelection = submenuNames.size() - 1;
+    else if (currSelection >= submenuNames.size())
         currSelection = 0;
 
     // draw new selection
@@ -123,9 +129,14 @@ void ScreenMenu::drawSelUpdate(MenuActions actionMenuSel)
     }
 }
 
-uint16_t ScreenMenu::getCurrSelection() { return currSelection; }
+uint16_t ScreenMenu::getMenuSelection() { return currSelection; }
 
-uint16_t ScreenMenu::getNumSubMenus() { return menuEntries.size(); }
+uint16_t ScreenMenu::getNumSubMenus() { return submenuNames.size(); }
+
+std::string ScreenMenu::getSubmenuName(uint16_t index)
+{
+    return submenuNames.at(index);
+}
 
 
 /**********************************
@@ -133,26 +144,53 @@ uint16_t ScreenMenu::getNumSubMenus() { return menuEntries.size(); }
  **********************************/
 void Gui::enterMenu()
 {
-    // TODO: optimize: ISR must stay small (without inErrorState logic µC crashes ...)
-
-    // ScreenMenu*                    node*
-    if (menuCurr->getNumSubMenus() == nodeCurr->getNumNodes())
-    {
-        int32_t menuIndex = menuCurr->getCurrSelection();
-        nodeCurr = nodeCurr->getNode(menuIndex);
-        menuCurr = nodeCurr->getDataPtr();
-        clearScreen();
-        menuCurr->draw();
-    }
-    else
-    {
-        inErrorState = true;
-    }
+    menuEntered = true;
 }
 
 void Gui::changeSelection(MenuActions actionGui) { menuCurr->drawSelUpdate(actionGui); }
 
+void Gui::gotoMainMenu()
+{
+    nodeCurr = menuTree.getRoot();
+    menuCurr = nodeCurr->getDataPtr();
+    clearScreen();
+    menuCurr->draw();
+}
+
 void Gui::clearScreen() { lcd.fillScreen(COLOR_BLACK); }
+
+bool Gui::hasMenuEntered() { return menuEntered; }
+
+void Gui::changeMenu()
+{
+    menuEntered = false;
+    int16_t iMenuSel = menuCurr->getMenuSelection();
+    if (iMenuSel == menuCurr->getNumSubMenus() - 1 && nodeCurr->getParent() != nullptr)
+    {
+        nodeCurr = nodeCurr->getParent();
+        menuCurr = nodeCurr->getDataPtr();
+    }
+    else
+    {
+        // TODO: improve if condition
+        if (nodeCurr->getNumChildren() == 0)
+        {
+            // check if corresponding node is existent
+            screenError.setErrorMsg("menu nodes not implemented!");
+            clearScreen();
+            screenError.draw();
+            delay(5000);
+            gotoMainMenu();
+        }
+        else
+        {
+            nodeCurr = nodeCurr->getChild(iMenuSel);
+            menuCurr = nodeCurr->getDataPtr();
+        }
+    }
+    clearScreen();
+    menuCurr->draw();
+}
 
 void Gui::init()
 {
@@ -167,26 +205,19 @@ void Gui::init()
     lcd.setTextSize(FONT_12x16);
     // draw main menu
     menuCurr->draw();
-    menuCurr->drawSelUpdate(INIT);
 }
 
 void Gui::initMenus()
 {
-    nodeCurr = menuTree.addNode(ScreenMenu(
-        lcd, "Main Menu", std::vector<std::string>({
+    nodeCurr = menuTree.setRoot(ScreenMenu(lcd, "Main Menu", std::vector<std::string>({
         "(1) Analog Read",
-        "(2) Protocols"} )));
-        nodeCurr->addNode(ScreenMenu(
-            lcd, "Analog Read", std::vector<std::string>({
-            "test"})));
-        nodeCurr->addNode(ScreenMenu(
-            lcd, "Protocols", std::vector<std::string>({
-            "test"})));
-
-    for (uint16_t iNode = 0; iNode < 2; ++iNode)
-        menuTree.getNode(iNode)->getData();
-
-    // TODO: recursively add "Back" button/node to submenus/subnodes
-
+        "(2) Protocols"}), false));
+            nodeCurr->addNode(ScreenMenu(lcd, "Analog Read", std::vector<std::string>({
+            "Read Input",
+            "Threshold Action"})));
+            nodeCurr->addNode(ScreenMenu(lcd, "Protocols", std::vector<std::string>({
+            "I²C",
+            "SPI",
+            "UART"})));
     menuCurr = nodeCurr->getDataPtr();
 }

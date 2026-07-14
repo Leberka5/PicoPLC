@@ -6,23 +6,15 @@
  * node methods
  **********************************/
 template<typename T>
-tree<T>::node::node(node *parent) :
-    parent(parent) { }
-
-template<typename T>
 tree<T>::node::node(node *parent, T data) :
     parent(parent),
     data(data) { }
 
-template<typename T>
-tree<T>::node::node(node *parent, std::vector<node *> children) :
-    parent(parent),
-    nodes(children) { }
 
 template<typename T>
 tree<T>::node::~node()
 {
-    for (auto& nodeCurr : nodes)
+    for (auto& nodeCurr : children)
         delete nodeCurr;
 }
 
@@ -30,19 +22,22 @@ template<typename T>
 typename tree<T>::node* tree<T>::node::addNode(T dataChild)
 {
     node* nodeNew = new node(this, dataChild);
-    nodes.push_back(nodeNew);
+    children.push_back(nodeNew);
     leaf = false;
     return nodeNew;
 }
 
 template<typename T>
-typename tree<T>::node* tree<T>::node::getNode(uint16_t iNode) { return nodes.at(iNode); }
+typename tree<T>::node* tree<T>::node::getChild(uint16_t iNode) { return children.at(iNode); }
 
 template<typename T>
-std::vector<class tree<T>::node *> tree<T>::node::getAllNodes() { return nodes; }
+typename tree<T>::node * tree<T>::node::getParent() { return parent; }
 
 template<typename T>
-uint16_t tree<T>::node::getNumNodes() { return nodes.size(); }
+std::vector<class tree<T>::node *> tree<T>::node::getChildren() { return children; }
+
+template<typename T>
+uint16_t tree<T>::node::getNumChildren() { return children.size(); }
 
 template<typename T>
 T tree<T>::node::getData() { return data; }
@@ -70,26 +65,14 @@ tree<T>::~tree()
 }
 
 template<typename T>
-typename tree<T>::node* tree<T>::addNode(T nodeData)
+typename tree<T>::node* tree<T>::setRoot(T nodeData)
 {
-    if (root == nullptr)
-    {
-        // create root node
-        root = new node(nullptr, nodeData);
-        return root;
-    }
-    else
-    {
-        // add node to root node
-        return root->addNode(nodeData);
-    }
+    root = new node(nullptr, nodeData);
+    return root;
 }
 
 template<typename T>
-typename tree<T>::node * tree<T>::getNode(uint16_t iNode) { return root->getAllNodes().at(iNode); }
+typename tree<T>::node * tree<T>::getRoot() { return root; }
 
 template<typename T>
-std::vector<class tree<T>::node *> tree<T>::getAllNodes() { return root->getNodes(); }
-
-template<typename T>
-uint16_t tree<T>::getNumNodes() { return root->getNumNodes(); }
+std::vector<class tree<T>::node *> tree<T>::getRootNodes() { return root->getNodes(); }

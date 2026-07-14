@@ -11,30 +11,28 @@ public:
     class node
     {
     public:
-        node(node* parent);
         node(node* parent, T data);
-        node(node* parent, std::vector<node*> children);
         ~node();
+        node* addNode(T dataChild);
         T getData();
         T* getDataPtr();
-        node* addNode(T dataChild);
-        node* getNode(uint16_t iNode);
-        std::vector<node*> getAllNodes();
-        uint16_t getNumNodes();
+        uint16_t getNumChildren();
+        std::vector<node*> getChildren();
+        node* getChild(uint16_t iNode);
+        node* getParent();
         bool isLeaf();
     private:
         T data;
-        std::vector<node*> nodes;
+        std::vector<node*> children;
         node* parent;
         bool leaf = true; // i.e. no nodes
     };
 
     tree();
     ~tree();
-    node* addNode(T node);
-    node* getNode(uint16_t iNode);
-    std::vector<node*> getAllNodes();
-    uint16_t getNumNodes();
+    node* setRoot(T node);
+    node* getRoot();
+    std::vector<node*> getRootNodes();
     using nptr = tree<T>::node*;
 private:
     node* root = nullptr;

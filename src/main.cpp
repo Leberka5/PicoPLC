@@ -18,6 +18,7 @@ INTERRUPT isrEncoderButton()
 void setup()
 {
     // init lcd and encoder and draw menu
+    Serial.begin(9600);
     Encoder::init();
     Gui::init();
     // config encoder
@@ -37,10 +38,6 @@ void loop()
     else if (actionEnc == LEFT)
         Gui::changeSelection(DOWN);
 
-    if (Gui::inErrorState)
-    {
-        Gui::clearScreen();
-        Gui::screenError.drawError("Submenus != Subnodes");
-        delay(60000);
-    }
+    if (Gui::hasMenuEntered())
+        Gui::changeMenu();
 }
