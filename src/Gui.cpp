@@ -2,9 +2,9 @@
 #include "include/tree/tree.h"
 
 
-/**********************************
+/********************************************************************
  * init static member of Gui class
- **********************************/
+ ********************************************************************/
 Adafruit_ST7789 Gui::lcd = Adafruit_ST7789(SPI_CS, LCD_DC, LCD_RST);
 tree<ScreenMenu> Gui::menuTree = tree<ScreenMenu>();
 nptr<ScreenMenu> Gui::nodeCurr = nullptr;
@@ -14,9 +14,9 @@ bool Gui::inErrorState = false;
 bool Gui::menuEntered = false;
 
 
-/**********************************
+/********************************************************************
  * Screen base class methods
- **********************************/
+ ********************************************************************/
 Screen::Screen(Adafruit_ST7789& lcd) :
     lcd(lcd),
     colorBg(COLOR_BLACK) { }
@@ -24,9 +24,9 @@ Screen::Screen(Adafruit_ST7789& lcd) :
 uint16_t Screen::centerText(uint16_t numChars) { return (SCREEN_WIDTH / 2) - (numChars * FONT_WIDTH_2 / 2); }
 
 
-/**********************************
+/********************************************************************
  * ScreenError methods
- **********************************/
+ ********************************************************************/
 ScreenError::ScreenError(Adafruit_ST7789& lcd) :
     Screen(lcd) { }
 
@@ -49,9 +49,9 @@ void ScreenError::draw()
 }
 
 
-/**********************************
+/********************************************************************
  * methods of class GuiMenu
- **********************************/
+ ********************************************************************/
 ScreenMenu::ScreenMenu(Adafruit_ST7789& lcd, const std::string& menuTitle, const std::vector<std::string>& menuEntries, bool hasBackBtn) :
     Screen(lcd),
     menuTitle(menuTitle),
@@ -139,9 +139,9 @@ std::string ScreenMenu::getSubmenuName(uint16_t index)
 }
 
 
-/**********************************
+/********************************************************************
  * methods of class Gui
- **********************************/
+ ********************************************************************/
 void Gui::enterMenu()
 {
     menuEntered = true;

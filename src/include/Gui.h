@@ -67,10 +67,10 @@ enum MenuActions
 class ScreenMenu;
 class ScreenError;
 
-/**********************************
+/********************************************************************
  * base class for ScreenMenu, ScreenError
  * override draw() in oder to use it
- **********************************/
+ ********************************************************************/
 class Screen
 {
 public:
@@ -83,10 +83,10 @@ protected:
     uint16_t colorBg;
 };
 
-/**********************************
+/********************************************************************
  * display errors:
  *  - trying to enter not defined sub menu
- **********************************/
+ ********************************************************************/
 class ScreenError : public Screen
 {
 public:
@@ -98,9 +98,9 @@ private:
     std::vector<std::string> errorLog;
 };
 
-/**********************************
+/********************************************************************
  * class used to display menus (row structured)
- **********************************/
+ ********************************************************************/
 class ScreenMenu : public Screen
 {
 public:
@@ -118,6 +118,33 @@ private:
 };
 
 
+/********************************************************************
+ * class used to display unique applications
+ ********************************************************************/
+class ScreenWidget : public Screen
+{
+public:
+    ScreenWidget(Adafruit_ST7789& lcd, const std::string &menuTitle);
+    void draw() override;
+private:
+};
+
+class ScreenGraph : public ScreenWidget
+{
+public:
+    ScreenGraph(Adafruit_ST7789& lcd, const std::string &menuTitle);
+    void draw() override;
+private:
+};
+
+class ScreenInput : public ScreenWidget
+{
+public:
+    ScreenInput(Adafruit_ST7789& lcd, const std::string &menuTitle);
+    void draw() override;
+private:
+};
+
 /**********************************
  * supervisor class (therefore static)
  **********************************/
@@ -125,7 +152,7 @@ class Gui
 {
 public:
     static void init();
-    static void enterMenu(); // callback func for btn press (keep as small as possible)
+    static void enterMenu();                            // callback func for btn press (keep as small as possible)
     static void changeSelection(MenuActions actionGui); // wrapper for GuiMenu::drawSelection
     static void gotoMainMenu();
     static void clearScreen();

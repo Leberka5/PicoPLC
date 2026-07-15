@@ -40,5 +40,6 @@ private:
 
 template<typename T>
 using nptr = typename tree<T>::nptr;
+
 // include impl (weird C++ style)
 #include "tree.tpp"
