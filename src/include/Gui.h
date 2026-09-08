@@ -160,6 +160,7 @@ public:
     static void changeMenu();
 private:
     static void initMenus();
+    static inline void drawErrorNotImpl(std::string menuName);
     static ScreenError screenError;
     static ScreenMenu* menuCurr;
     static Adafruit_ST7789 lcd;

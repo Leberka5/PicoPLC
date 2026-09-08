@@ -163,26 +163,26 @@ bool Gui::hasMenuEntered() { return menuEntered; }
 
 void Gui::changeMenu()
 {
+    Serial.println(F("Menu Entered"));
     menuEntered = false;
     int16_t iMenuSel = menuCurr->getMenuSelection();
-    if (iMenuSel == menuCurr->getNumSubMenus() - 1 && nodeCurr->getParent() != nullptr)
+
+    // go to parent node if "Back" button i.e. the last menu item is selected
+    bool isBackBtnSel = (iMenuSel == menuCurr->getNumSubMenus() - 1 && nodeCurr->getParent() != nullptr);
+    if (isBackBtnSel)
     {
         nodeCurr = nodeCurr->getParent();
         menuCurr = nodeCurr->getDataPtr();
     }
     else
     {
-        // TODO: improve if condition
-        if (nodeCurr->getNumChildren() == 0)
+        // check if selected menu is even implemented yet
+        if (nodeCurr->getNumChildren() == 0 || nodeCurr->getNumChildren() < iMenuSel + 1)
         {
-            // check if corresponding node is existent
-            screenError.setErrorMsg("menu nodes not implemented!");
-            clearScreen();
-            screenError.draw();
-            delay(5000);
-            gotoMainMenu();
+            std::string menuName = menuCurr->getSubmenuName(iMenuSel);
+            drawErrorNotImpl(menuName);
         }
-        else
+        else // the menu is implemented --> draw it!
         {
             nodeCurr = nodeCurr->getChild(iMenuSel);
             menuCurr = nodeCurr->getDataPtr();
@@ -212,12 +212,25 @@ void Gui::initMenus()
     nodeCurr = menuTree.setRoot(ScreenMenu(lcd, "Main Menu", std::vector<std::string>({
         "(1) Analog Read",
         "(2) Protocols"}), false));
-            nodeCurr->addNode(ScreenMenu(lcd, "Analog Read", std::vector<std::string>({
-            "Read Input",
-            "Threshold Action"})));
-            nodeCurr->addNode(ScreenMenu(lcd, "Protocols", std::vector<std::string>({
-            "I²C",
-            "SPI",
-            "UART"})));
+
+    nptr<ScreenMenu> nodeAnalog = nodeCurr->addNode(ScreenMenu(lcd, "Analog Read", std::vector<std::string>({
+        "Read Input",
+        "Threshold Action"})));
+
+    nodeAnalog->addNode(ScreenMenu(lcd, "Analog Read", std::vector<std::string>({
+        "Idk",
+        "Idkkk"})));
+
+
+
     menuCurr = nodeCurr->getDataPtr();
+}
+
+void Gui::drawErrorNotImpl(std::string menuName)
+{
+    screenError.setErrorMsg("Menu '"+ menuName +"' not yet implemented!");
+    clearScreen();
+    screenError.draw();
+    delay(5000);
+    gotoMainMenu();
 }

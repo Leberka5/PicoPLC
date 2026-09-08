@@ -1,6 +1,8 @@
 #include "include/defines.h"
 #include "include/Gui.h"
 #include "include/Encoder.h"
+#include "pico/bootrom.h"
+
 
 // ISR: rotary encoder button press
 INTERRUPT isrEncoderButton()
@@ -27,6 +29,9 @@ void setup()
     pinMode(ENCODER_BUTTON, INPUT_PULLDOWN);
     pinMode(pins::LED, OUTPUT);
     attachInterrupt(digitalPinToInterrupt(ENCODER_BUTTON), isrEncoderButton, RISING);
+    delay(1000);
+    // reset_usb_boot(0, 0);
+
 }
 
 // main loop

@@ -28,7 +28,10 @@ typename tree<T>::node* tree<T>::node::addNode(T dataChild)
 }
 
 template<typename T>
-typename tree<T>::node* tree<T>::node::getChild(uint16_t iNode) { return children.at(iNode); }
+typename tree<T>::node* tree<T>::node::getChild(uint16_t iNode)
+{
+    return children.at(iNode);
+}
 
 template<typename T>
 typename tree<T>::node * tree<T>::node::getParent() { return parent; }
