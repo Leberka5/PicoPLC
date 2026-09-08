@@ -32,6 +32,31 @@ enum pins
     ENCODER_BUTTON = 22     // encoder output a
 };
 
+// used to change the currently selected menu entry (via encoder)
+enum MenuActions
+{
+    INIT,
+    DOWN,
+    UP,
+};
+
+// 16 bit colors for Adafruit_ST7789
+enum Colors
+{
+    COLOR_WHITE = 0xFFFF,
+    COLOR_BLACK = 0x0000,
+    COLOR_GREEN = 0x0f00,
+    COLOR_GREEN_2 = 0x07E0,
+    COLOR_RED = 0xF800,
+    COLOR_BLUE = 0x001F,
+    COLOR_BLUEGREY = 0x22ED,
+    COLOR_CYAN = 0x07FF,
+    COLOR_MAGENTA = 0xF81F,
+    COLOR_YELLOW = 0xFFE0,
+    COLOR_ORANGE = 0xFC00
+};
+
+
 using INTERRUPT = void;
 
 
