@@ -1,41 +1,52 @@
 # PicoPLC 
 
+PicoPLC is a development board which expands the functionality of 
+the classical Raspberry Pi Pico by adding a display, a rotary encoder and 
+a battery. 
+
 <img src="img/PicoPLC.png" width=500>
 
-PicoPLC is a development project which represents an extension board for the Raspberry Pi Pico (first gen). 
-It is meant as a simple controller for tinkerers.
+
 
 # Features:
-
 ## Implemented
 * Navigable menu with back button
 * Flashing Raspberry Pi Pico without reconnecting USB connection
-
 ## Planned
 * PWM generator
 * ADC for simple sensor testing
 * Logic analyzer
 
-# Hardware
+# Compile, Flash and Monitor
+PicoPLC is a PlatformIO project. There is a dedicated bash script to easily compile 
+the source code and flash it to the microcontroller. Call it like this (whilst cwd is 
+in PicoPLC's project folder):
+>./scripts/flash.sh
 
-The schematics and footprint has been created with <a href="https://librepcb.org/"> LibrePCB </a>. For 
-production <a href="https://aisler.net/de"> Aisler </a> has been chosen.
-The bottom left sided 3 pin jack is connected to the Pico's ADC. The 2x8 pin jack could be used for future extension 
-boards (e.g.: buttons, sensors, LoRa, IR, ...). The two pins located over the red switch are used to power 
-the board using a battery (Important: Do not use without charge controller circuit! Link is below.).
+The script removes the need in replugging the pico while pressing the BOOTSEL button. Due to 
+the project being PlatformIO, it is normally sufficient to press 'Upload' in the PlatformIO 
+plugin tab of your IDE. 
+
+If you want to monitor the Pico's serial output using minicom, use this command:
+>sudo minicom -b 115200 -o -D /dev/ttyACM0
+
+# Hardware
+The schematics and footprint has been created with <a href="https://librepcb.org/"> LibrePCB </a>. 
+For PCB production <a href="https://aisler.net/de"> Aisler </a> has been chosen. The bottom 
+left-sided 3 pin jack is connected to the Pico's ADC. The 2x8 pin jack could be used for 
+future extension boards (e.g.: buttons, sensors, LoRa, IR, ...). The two pins located over 
+the red switch are used to power the board using a battery (Important: Do not use without 
+charge controller circuit! Link is below.).
 
 ## Schematic
-
 <img src="img/PicoPLC_Schematics.png" width=600>
 
 ## Footprint
-
 <img src="img/PicoPLC_Board.png" width=600>
 
-# Components
+## Components
 
-## Essential:
-
+### Essential:
 * µC-Board: https://www.reichelt.de/de/de/shop/produkt/raspberry_pi_pico_rp2040_cortex-m0_microusb-295706
 * Display: https://www.reichelt.de/de/de/shop/produkt/entwicklerboards_-_display_lcd_1_3_240_x_240_pixel_st7789-296742
 * Encoder: https://www.reichelt.de/de/de/shop/produkt/drehimpulsegeber_24_impulse_24_rastungen_vertikal-73923
@@ -43,12 +54,9 @@ the board using a battery (Important: Do not use without charge controller circu
 * Schalter: https://www.reichelt.de/de/de/shop/produkt/piano-dip-schalter_2-polig-36468
 * Schottky-Diode: https://www.reichelt.de/de/de/shop/produkt/schottkydiode_40_v_0_35_a_do-35-4855
 * 10 kΩ Widerstand: https://www.reichelt.de/de/de/shop/produkt/widerstand_metalloxyd_10_kohm_0207_1_0_w_5_-1779
-
-## Battery extension:
-
+### Battery extension:
 * Laderegler: https://www.az-delivery.de/products/az-delivery-laderegler-tp4056-micro-usb?_pos=2&_sid=d151976ab&_ss=r
 * Akku: https://www.reichelt.de/de/de/shop/produkt/li-ion_akku_soldered_333278_500_mah_3_7_v-373542
-
-## Future improvements:
-
+### Future improvements:
 * MOSFET: https://www.reichelt.de/de/de/shop/produkt/mosfet_p-ch_-60v_-18_7a_0_13r_to-220-257465
+
