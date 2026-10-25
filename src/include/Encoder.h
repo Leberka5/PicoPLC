@@ -10,8 +10,7 @@
 #include "defines.h"
 
 constexpr int32_t DEBUG_ENCODER = 1;
-// constexpr int32_t DEBOUNCE_DELAY = 50;
-constexpr int32_t DEBOUNCE_DELAY = 500;
+constexpr int32_t DEBOUNCE_DELAY = 70;
 
 enum EncoderAction
 {

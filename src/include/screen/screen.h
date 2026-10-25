@@ -59,7 +59,7 @@ class ScreenError : public Screen
 {
 public:
     ScreenError(Adafruit_ST7789& lcd);
-    void setErrorMsg(std::string errorMsg);
+    void setErrorMsg(const std::string& errorMsg);
     void draw() override;
 private:
     std::string errorMsg;

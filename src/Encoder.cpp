@@ -1,5 +1,6 @@
 #include "include/Encoder.h"
 
+
 /**********************************
  * init static member of Encoder class
  **********************************/
@@ -8,8 +9,6 @@ int32_t Encoder::currStateA;
 int32_t Encoder::counter = 0;
 uint64_t Encoder::timeLastAction = 0;
 uint64_t Encoder::timeLastBtnPress = 0;
-
-
 
 
 /**********************************

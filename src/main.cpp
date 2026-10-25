@@ -3,7 +3,6 @@
 #include "include/Encoder.h"
 #include "pico/bootrom.h"
 
-
 // ISR: rotary encoder button press
 INTERRUPT isrEncoderButton()
 {
@@ -16,11 +15,16 @@ INTERRUPT isrEncoderButton()
     }
 }
 
+static void reset_system()
+{
+    reset_usb_boot(0, 0);
+}
+
 // setup GUI, GPIOs, INTs, ...
 void setup()
 {
     // init lcd and encoder and draw menu
-    Serial.begin(9600);
+    Serial.begin(115200);
     Encoder::init();
     Gui::init();
     // config encoder
@@ -29,20 +33,29 @@ void setup()
     pinMode(ENCODER_BUTTON, INPUT_PULLDOWN);
     pinMode(pins::LED, OUTPUT);
     attachInterrupt(digitalPinToInterrupt(ENCODER_BUTTON), isrEncoderButton, RISING);
-    delay(1000);
-    // reset_usb_boot(0, 0);
-
 }
 
 // main loop
 void loop()
 {
+    // check if menu switch
     EncoderAction actionEnc = Encoder::readInput();
     if (actionEnc == RIGHT)
         Gui::changeSelection(UP);
     else if (actionEnc == LEFT)
         Gui::changeSelection(DOWN);
-
     if (Gui::hasMenuEntered())
         Gui::changeMenu();
+
+    // check for received commands (PC)
+    if (Serial.available() > 0)
+    {
+        String strRecvPC = Serial.readStringUntil('\n');
+        strRecvPC.trim();
+        if (strRecvPC == "reboot")
+        {
+            Serial.println("[PICO] :: received command: reboot");
+            reset_system();
+        }
+    }
 }

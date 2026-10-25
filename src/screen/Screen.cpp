@@ -2,7 +2,6 @@
 #include "include/screen/screen.h"
 
 
-
 /********************************************************************
  * Screen base class methods
  ********************************************************************/
@@ -19,7 +18,7 @@ uint16_t Screen::centerText(uint16_t numChars) { return (SCREEN_WIDTH / 2) - (nu
 ScreenError::ScreenError(Adafruit_ST7789& lcd) :
     Screen(lcd) { }
 
-void ScreenError::setErrorMsg(std::string errorMsg)
+void ScreenError::setErrorMsg(const std::string& errorMsg)
 {
     errorLog.emplace_back(errorMsg);
     this->errorMsg = errorMsg;
@@ -33,7 +32,7 @@ void ScreenError::draw()
     lcd.setCursor(centerText(strHead.length()), 50);
     lcd.write(strHead.c_str());
     lcd.setTextColor(COLOR_YELLOW);
-    lcd.setCursor(0, 120);
+    lcd.setCursor(0, 100);
     lcd.write(errorMsg.c_str());
 }
 
@@ -41,7 +40,7 @@ void ScreenError::draw()
 /********************************************************************
  * methods of class GuiMenu
  ********************************************************************/
-ScreenMenu::ScreenMenu(Adafruit_ST7789& lcd, const std::string& menuTitle, const std::vector<std::string>& menuEntries, bool hasBackBtn) :
+ScreenMenu::ScreenMenu(Adafruit_ST7789& lcd, const std::string& menuTitle, const std::vector<std::string>& menuEntries, const bool hasBackBtn) :
     Screen(lcd),
     menuTitle(menuTitle),
     submenuNames(menuEntries),

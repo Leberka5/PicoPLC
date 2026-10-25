@@ -23,7 +23,7 @@ void Gui::enterMenu()
     menuEntered = true;
 }
 
-void Gui::changeSelection(MenuActions actionGui) { menuCurr->drawSelUpdate(actionGui); }
+void Gui::changeSelection(const MenuActions actionGui) { menuCurr->drawSelUpdate(actionGui); }
 
 void Gui::gotoMainMenu()
 {
@@ -75,7 +75,6 @@ void Gui::init()
     // init lcd
     lcd.init(SCREEN_WIDTH, SCREEN_HEIGHT, SPI_MODE2);
     lcd.setRotation(ROTATION_UP);
-    delay(50);
     lcd.fillScreen(COLOR_BLACK);
     lcd.setTextColor(ST77XX_WHITE);
     lcd.setTextSize(FONT_12x16);
@@ -102,11 +101,11 @@ void Gui::initMenus()
     menuCurr = nodeCurr->getDataPtr();
 }
 
-void Gui::drawErrorNotImpl(std::string menuName)
+void Gui::drawErrorNotImpl(const std::string& menuName)
 {
     screenError.setErrorMsg("Menu '"+ menuName +"' not yet implemented!");
     clearScreen();
     screenError.draw();
-    delay(5000);
+    delay(2000);
     gotoMainMenu();
 }
