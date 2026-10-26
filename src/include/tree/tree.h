@@ -39,7 +39,7 @@ private:
 };
 
 template<typename T>
-using nptr = typename tree<T>::nptr;
+using node_ptr = typename tree<T>::nptr;
 
 // include impl (weird C++ style)
 #include "../../tree/tree.tpp"

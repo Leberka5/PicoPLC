@@ -3,16 +3,18 @@
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7789.h>
+
 #include "include/defines.h"
 #include "tree/tree.h"
-#include "screen/screen.h"
+#include "screen/Screen.h"
+#include "screen/ScreenError.h"
+#include "screen/ScreenMenu.h"
 
 
 enum ErrorCodes
 {
     ERROR_NO_SUB_MENUS = -1     // must stay -1 (l. at  ScreenMenu::getCurrSelection)
 };
-
 
 
 /**********************************
@@ -35,7 +37,7 @@ private:
     static ScreenMenu* menuCurr;
     static Adafruit_ST7789 lcd;
     static tree<ScreenMenu> menuTree;
-    static nptr<ScreenMenu> nodeCurr;
+    static node_ptr<ScreenMenu> nodeCurr;
     static bool inErrorState;       // true if entering menu which does not exist
     static bool menuEntered;
 };

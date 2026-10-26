@@ -1,9 +1,10 @@
 #ifndef PICOPLC_SCREEN_H
 #define PICOPLC_SCREEN_H
 
-#include "../defines.h"
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7789.h>
+
+#include "../defines.h"
 
 
 // just some mappings for options of Adafruit_ST7789
@@ -50,42 +51,6 @@ protected:
     Adafruit_ST7789& lcd;
     uint16_t colorBg;
 };
-
-/********************************************************************
- * display errors:
- *  - trying to enter not defined sub menu
- ********************************************************************/
-class ScreenError : public Screen
-{
-public:
-    ScreenError(Adafruit_ST7789& lcd);
-    void setErrorMsg(const std::string& errorMsg);
-    void draw() override;
-private:
-    std::string errorMsg;
-    std::vector<std::string> errorLog;
-};
-
-
-/********************************************************************
- * class used to display menus (row structured)
- ********************************************************************/
-class ScreenMenu : public Screen
-{
-public:
-    ScreenMenu(Adafruit_ST7789& lcd, const std::string &menuTitle, const std::vector<std::string> &menuEntries, bool hasBackBtn = true);
-    ScreenMenu& operator=(const ScreenMenu& other);
-    void draw() override;                           // draw them friggin menu entries
-    void drawSelUpdate(MenuActions actionMenuSel);  // draw curr encoder sel
-    uint16_t getMenuSelection();
-    uint16_t getNumSubMenus();
-    std::string getSubmenuName(uint16_t index);
-private:
-    std::vector<std::string> submenuNames;
-    std::string menuTitle;
-    int16_t currSelection;
-};
-
 
 
 #endif //PICOPLC_SCREEN_H

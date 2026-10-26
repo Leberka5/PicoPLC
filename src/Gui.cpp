@@ -7,7 +7,7 @@
  ********************************************************************/
 Adafruit_ST7789 Gui::lcd = Adafruit_ST7789(SPI_CS, LCD_DC, LCD_RST);
 tree<ScreenMenu> Gui::menuTree = tree<ScreenMenu>();
-nptr<ScreenMenu> Gui::nodeCurr = nullptr;
+node_ptr<ScreenMenu> Gui::nodeCurr = nullptr;
 ScreenMenu* Gui::menuCurr = nullptr;
 ScreenError Gui::screenError = ScreenError(lcd);
 bool Gui::inErrorState = false;
@@ -39,7 +39,6 @@ bool Gui::hasMenuEntered() { return menuEntered; }
 
 void Gui::changeMenu()
 {
-    Serial.println(F("Menu Entered"));
     menuEntered = false;
     int16_t iMenuSel = menuCurr->getMenuSelection();
 
@@ -47,6 +46,7 @@ void Gui::changeMenu()
     bool isBackBtnSel = (iMenuSel == menuCurr->getNumSubMenus() - 1 && nodeCurr->getParent() != nullptr);
     if (isBackBtnSel)
     {
+        Serial.println(F("[PICO] :: menu entered (back)"));
         nodeCurr = nodeCurr->getParent();
         menuCurr = nodeCurr->getDataPtr();
     }
@@ -55,11 +55,13 @@ void Gui::changeMenu()
         // check if selected menu is even implemented yet
         if (nodeCurr->getNumChildren() == 0 || nodeCurr->getNumChildren() < iMenuSel + 1)
         {
+            Serial.println(F("[PICO] :: ERROR :: menu not implemented!"));
             std::string menuName = menuCurr->getSubmenuName(iMenuSel);
             drawErrorNotImpl(menuName);
         }
         else // the menu is implemented --> draw it!
         {
+            Serial.println(F("[PICO] :: menu entered"));
             nodeCurr = nodeCurr->getChild(iMenuSel);
             menuCurr = nodeCurr->getDataPtr();
         }
@@ -85,18 +87,16 @@ void Gui::init()
 void Gui::initMenus()
 {
     nodeCurr = menuTree.setRoot(ScreenMenu(lcd, "Main Menu", std::vector<std::string>({
-        "(1) Analog Read",
-        "(2) Protocols"}), false));
+        "(1) PWM Generator",
+        "(2) Analog Read"}), false));
 
-    nptr<ScreenMenu> nodeAnalog = nodeCurr->addNode(ScreenMenu(lcd, "Analog Read", std::vector<std::string>({
-        "Read Input",
+    node_ptr<ScreenMenu> nodePwm = nodeCurr->addNode(ScreenMenu(lcd, "Analog Read", std::vector<std::string>({
+        "Set Frequency",
         "Threshold Action"})));
 
-    nodeAnalog->addNode(ScreenMenu(lcd, "Analog Read", std::vector<std::string>({
+    nodePwm->addNode(ScreenMenu(lcd, "Analog Read", std::vector<std::string>({
         "Idk",
         "Idkkk"})));
-
-
 
     menuCurr = nodeCurr->getDataPtr();
 }

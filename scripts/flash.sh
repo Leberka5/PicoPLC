@@ -56,8 +56,13 @@ copyFirmware() {
   fi
 }
 
+genDisassembly() {
+  ~/.platformio/packages/toolchain-gccarmnoneeabi/bin/arm-none-eabi-objdump -d .pio/build/*/firmware.elf > disassembly.txt
+}
+
 
 sendRebootSignal
 waitForMount
 compileSrcCode
 copyFirmware
+#genDisassembly
