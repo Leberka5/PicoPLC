@@ -43,12 +43,13 @@ enum GuiNumerics
 class Screen
 {
 public:
-    Screen(Adafruit_ST7789& lcd);
+    Screen(Adafruit_ST7789& lcd, std::string title);
     virtual ~Screen() = default; // virtual in order to call derived class's destructor when deleted
     virtual void draw() = 0;
 protected:
     uint16_t centerText(uint16_t numChars);
     Adafruit_ST7789& lcd;
+    std::string title;
     uint16_t colorBg;
 };
 

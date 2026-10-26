@@ -9,6 +9,7 @@
 #include "screen/Screen.h"
 #include "screen/ScreenError.h"
 #include "screen/ScreenMenu.h"
+#include "screen/ScreenPwm.h"
 
 
 enum ErrorCodes

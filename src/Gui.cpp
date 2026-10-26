@@ -44,22 +44,23 @@ void Gui::changeMenu()
     bool isBackBtnSel = (iMenuSel == menuCurr->getNumSubMenus() - 1 && nodeCurr->getParent() != nullptr);
     if (isBackBtnSel)
     {
-        Serial.println(F("[PICO] :: menu entered (back)"));
+        Serial.println("[PICO] :: INFO :: menu entered (back)");
         nodeCurr = nodeCurr->getParent();
         menuCurr = nodeCurr->getDataPtr();
     }
     else
     {
+        std::string menuName = menuCurr->getSubmenuName(iMenuSel);
         // check if selected menu is even implemented yet
         if (nodeCurr->getNumChildren() == 0 || nodeCurr->getNumChildren() < iMenuSel + 1)
         {
-            Serial.println(F("[PICO] :: ERROR :: menu not implemented!"));
-            std::string menuName = menuCurr->getSubmenuName(iMenuSel);
+            Serial.println("[PICO] :: ERROR :: menu not implemented!");
             drawErrorNotImpl(menuName);
         }
         else // the menu is implemented --> draw it!
         {
-            Serial.println(F("[PICO] :: menu entered"));
+            Serial.print("[PICO] :: INFO :: menu selected: ");
+            Serial.println(menuName.c_str());
             nodeCurr = nodeCurr->getChild(iMenuSel);
             menuCurr = nodeCurr->getDataPtr();
         }
@@ -90,12 +91,12 @@ void Gui::initMenus()
 
     node_ptr<ScreenMenu> nodePwm = nodeCurr->addNode(ScreenMenu(lcd, "Analog Read", std::vector<std::string>({
         "Set Frequency",
-        "Threshold Action"})));
-
+        "On/Off"})));
+    /*
     nodePwm->addNode(ScreenMenu(lcd, "Analog Read", std::vector<std::string>({
-        "Idk",
-        "Idkkk"})));
-
+        "Child 1",
+        "Child 1"})));
+    */
     menuCurr = nodeCurr->getDataPtr();
 }
 

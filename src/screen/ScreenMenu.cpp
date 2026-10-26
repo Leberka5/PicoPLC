@@ -5,8 +5,7 @@
  * methods of class GuiMenu
  ********************************************************************/
 ScreenMenu::ScreenMenu(Adafruit_ST7789& lcd, const std::string& menuTitle, const std::vector<std::string>& menuEntries, const bool hasBackBtn) :
-    Screen(lcd),
-    menuTitle(menuTitle),
+    Screen(lcd, menuTitle),
     submenuNames(menuEntries),
     currSelection(0)
 {
@@ -20,7 +19,7 @@ ScreenMenu& ScreenMenu::operator=(const ScreenMenu& other)
         return *this;
     // copy ALL member of GuiMenu
     this->lcd = other.lcd;
-    this->menuTitle = other.menuTitle;
+    this->title = other.title;
     this->currSelection = other.currSelection;
     this->colorBg = other.colorBg;
 
@@ -34,7 +33,7 @@ void ScreenMenu::draw()
     lcd.setTextColor(COLOR_GREEN_2);
     lcd.setTextSize(FONT_12x16);
     lcd.setCursor(PADDING_TITLE_X, currCursorY);
-    lcd.write(menuTitle.c_str());
+    lcd.write(title.c_str());
     // draw menu entries
     lcd.setTextColor(COLOR_WHITE);
     lcd.setTextSize(FONT_12x16);

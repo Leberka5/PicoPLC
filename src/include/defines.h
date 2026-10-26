@@ -56,8 +56,6 @@ enum Colors
     COLOR_ORANGE = 0xFC00
 };
 
-
 using INTERRUPT = void;
-
 
 #endif //DEFINES_H

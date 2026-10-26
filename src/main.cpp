@@ -43,7 +43,7 @@ inline void recv_cmd()
         strRecvPC.trim();
         if (strRecvPC == "reboot")
         {
-            Serial.println("[PICO] :: received command: reboot");
+            Serial.println("[PICO] :: INFO :: received command: reboot");
             reset_usb_boot(0, 0);
         }
     }
