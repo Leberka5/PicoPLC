@@ -25,22 +25,23 @@ class Gui
 {
 public:
     static void init();
-    static void enterMenu();                            // callback func for btn press (keep as small as possible)
+    static void buttonPress();                            // callback func for btn press (keep as small as possible)
     static void changeSelection(MenuActions actionGui); // wrapper for GuiMenu::drawSelection
     static void gotoMainMenu();
     static void clearScreen();
-    static bool hasMenuEntered();
-    static void changeMenu();
+    static bool hasButtonPressed();
+    static void setButtonPressed();
 private:
     static void initMenus();
     static inline void drawErrorNotImpl(const std::string& menuName);
     static Adafruit_ST7789 lcd;
     static ScreenError screenError;
+    // TODO: consider rm menuCurr
     static Screen* menuCurr;
     static node_ptr<Screen*> nodeCurr;
     static tree<Screen*> menuTree;
     static bool inErrorState;       // true if entering menu which does not exist
-    static bool menuEntered;
+    static bool isButtonPressed;
 };
 
 #endif //GUI_H

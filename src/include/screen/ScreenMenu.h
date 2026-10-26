@@ -18,8 +18,7 @@ public:
     uint16_t getNumSubMenus();
     std::string getSubmenuName(uint16_t index);
 private:
-    std::vector<std::string> submenuNames;
-    int16_t currSelection;
+
 };
 
 

@@ -11,22 +11,20 @@ node_ptr<Screen*> Gui::nodeCurr = nullptr;
 Screen* Gui::menuCurr = nullptr;
 ScreenError Gui::screenError = ScreenError(lcd);
 bool Gui::inErrorState = false;
-bool Gui::menuEntered = false;
+bool Gui::isButtonPressed = false;
 
 
 /********************************************************************
  * methods of class Gui
  ********************************************************************/
-void Gui::enterMenu()
+void Gui::setButtonPressed()
 {
-    menuEntered = true;
+    isButtonPressed = true;
 }
 
 void Gui::changeSelection(const MenuActions actionGui)
 {
     menuCurr->drawSelUpdate(actionGui);
-
-
 }
 
 void Gui::gotoMainMenu()
@@ -39,13 +37,13 @@ void Gui::gotoMainMenu()
 
 void Gui::clearScreen() { lcd.fillScreen(COLOR_BLACK); }
 
-bool Gui::hasMenuEntered() { return menuEntered; }
+bool Gui::hasButtonPressed() { return isButtonPressed; }
 
-void Gui::changeMenu()
+void Gui::buttonPress()
 {
     ScreenMenu* curr = static_cast<ScreenMenu*>(menuCurr);
 
-    menuEntered = false;
+    isButtonPressed = false;
     int16_t iMenuSel = curr->getMenuSelection();
 
     // go to parent node if "Back" button i.e. the last menu item is selected
@@ -101,7 +99,7 @@ void Gui::initMenus()
         "Set Frequency",
         "On/Off"})));
 
-    nodePwm->addNode(new ScreenPwm(lcd, "Set Frequency"));
+    nodePwm->addNode(new ScreenPwm(lcd, "Set Frequency", std::vector<std::string>({ "100" })));
 
     menuCurr = nodeCurr->getData();
 }

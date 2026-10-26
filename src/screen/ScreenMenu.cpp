@@ -4,13 +4,14 @@
 /********************************************************************
  * methods of class GuiMenu
  ********************************************************************/
-ScreenMenu::ScreenMenu(Adafruit_ST7789& lcd, const std::string& menuTitle, const std::vector<std::string>& menuEntries, const bool hasBackBtn) :
-    Screen(lcd, menuTitle),
-    submenuNames(menuEntries),
-    currSelection(0)
+ScreenMenu::ScreenMenu(
+    Adafruit_ST7789& lcd,
+    const std::string& menuTitle,
+    const std::vector<std::string>& menuEntries,
+    bool hasBackBtn) :
+    Screen(lcd, menuTitle, menuEntries, hasBackBtn)
 {
-    if (hasBackBtn)
-        this->submenuNames.emplace_back("Back");
+
 }
 
 ScreenMenu& ScreenMenu::operator=(const ScreenMenu& other)
@@ -20,7 +21,7 @@ ScreenMenu& ScreenMenu::operator=(const ScreenMenu& other)
     // copy ALL member of GuiMenu
     this->lcd = other.lcd;
     this->title = other.title;
-    this->currSelection = other.currSelection;
+    this->currSelEntry = other.currSelEntry;
     this->colorBg = other.colorBg;
 
     return *this;
@@ -28,7 +29,7 @@ ScreenMenu& ScreenMenu::operator=(const ScreenMenu& other)
 
 void ScreenMenu::draw()
 {
-    uint8_t currCursorY = PADDING_TITLE_Y;
+    currCursorY = PADDING_TITLE_Y;
     // draw menu title
     lcd.setTextColor(COLOR_GREEN_2);
     lcd.setTextSize(FONT_12x16);
@@ -39,7 +40,7 @@ void ScreenMenu::draw()
     lcd.setTextSize(FONT_12x16);
     currCursorY = TITLE_HEIGHT + PADDING_MENU_Y;
     lcd.setCursor(PADDING_MENU_X, currCursorY);
-    for (std::string currMenuEntry : submenuNames)
+    for (std::string currMenuEntry : entries)
     {
         // write menu entry
         lcd.write(currMenuEntry.c_str());
@@ -54,7 +55,7 @@ void ScreenMenu::draw()
 void ScreenMenu::drawSelUpdate(MenuActions actionMenuSel)
 {
     // clear out old selection
-    uint8_t oldCursorY = currSelection * MENU_SELECTION_HEIGHT + TITLE_HEIGHT;
+    uint8_t oldCursorY = currSelEntry * MENU_SELECTION_HEIGHT + TITLE_HEIGHT;
     for (int x = 0; x < SCREEN_WIDTH; ++x)
     {
         lcd.drawPixel(x, oldCursorY, colorBg);
@@ -63,16 +64,16 @@ void ScreenMenu::drawSelUpdate(MenuActions actionMenuSel)
 
     // adjust new menu selection
     if (actionMenuSel == UP)
-        currSelection--;
+        currSelEntry--;
     else if (actionMenuSel == DOWN)
-        currSelection++;
-    if (currSelection < 0)
-        currSelection = submenuNames.size() - 1;
-    else if (currSelection >= submenuNames.size())
-        currSelection = 0;
+        currSelEntry++;
+    if (currSelEntry < 0)
+        currSelEntry = entries.size() - 1;
+    else if (currSelEntry >= entries.size())
+        currSelEntry = 0;
 
     // draw new selection
-    uint8_t currCursorY = currSelection * MENU_SELECTION_HEIGHT + TITLE_HEIGHT;
+    uint8_t currCursorY = currSelEntry * MENU_SELECTION_HEIGHT + TITLE_HEIGHT;
     for (int x = 0; x < SCREEN_WIDTH; ++x)
     {
         lcd.drawPixel(x, currCursorY, COLOR_GREEN);
@@ -80,12 +81,12 @@ void ScreenMenu::drawSelUpdate(MenuActions actionMenuSel)
     }
 }
 
-uint16_t ScreenMenu::getMenuSelection() { return currSelection; }
+uint16_t ScreenMenu::getMenuSelection() { return currSelEntry; }
 
-uint16_t ScreenMenu::getNumSubMenus() { return submenuNames.size(); }
+uint16_t ScreenMenu::getNumSubMenus() { return entries.size(); }
 
 std::string ScreenMenu::getSubmenuName(uint16_t index)
 {
-    return submenuNames.at(index);
+    return entries.at(index);
 }
 

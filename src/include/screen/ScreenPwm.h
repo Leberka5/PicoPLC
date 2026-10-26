@@ -7,7 +7,7 @@
 class ScreenPwm : public Screen
 {
 public:
-    ScreenPwm(Adafruit_ST7789& lcd, const std::string &menuTitle);
+    ScreenPwm(Adafruit_ST7789& lcd, const std::string &menuTitle, std::vector<std::string> entries);
     ScreenPwm& operator=(const ScreenPwm& other);
     void draw() override;
     void drawSelUpdate(MenuActions actionMenuSel) override;

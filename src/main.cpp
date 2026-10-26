@@ -19,8 +19,8 @@ inline void check_menu_switch()
 // check if menu has been entered (encoder btn press)
 inline void check_menu_enter()
 {
-    if (Gui::hasMenuEntered())
-        Gui::changeMenu();
+    if (Gui::hasButtonPressed())
+        Gui::buttonPress();
 }
 
 // check for received commands (PC)
@@ -45,7 +45,7 @@ ISR isrEncoderButton()
     bool isDebounced = (millis() - Encoder::timeLastBtnPress) > DEBOUNCE_DELAY;
     if (isDebounced)
     {
-        Gui::enterMenu();
+        Gui::setButtonPressed();
         Encoder::timeLastBtnPress = millis();
     }
 }
