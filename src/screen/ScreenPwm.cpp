@@ -1,8 +1,10 @@
 #include "../include/screen/ScreenPwm.h"
 
+#include "include/Gui.h"
 
-ScreenPwm::ScreenPwm(Adafruit_ST7789 &lcd, const std::string &menuTitle, std::vector<std::string> entries) :
-    Screen(lcd, menuTitle, entries)
+
+ScreenPwm::ScreenPwm(Adafruit_ST7789 &lcd, node_ptr<Screen*>& nodeCurr, const std::string &menuTitle, std::vector<std::string> entries) :
+    Screen(lcd, nodeCurr, menuTitle, entries)
 {
 
 }
@@ -70,4 +72,9 @@ void ScreenPwm::drawSelUpdate(MenuActions actionMenuSel)
         lcd.drawPixel(x, currCursorY, COLOR_GREEN);
         lcd.drawPixel(x, currCursorY + MENU_SELECTION_HEIGHT, COLOR_GREEN);
     }
+}
+
+void ScreenPwm::buttonPress()
+{
+    
 }

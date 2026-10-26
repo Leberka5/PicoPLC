@@ -11,10 +11,11 @@
 class ScreenError : public Screen
 {
 public:
-    ScreenError(Adafruit_ST7789& lcd);
+    ScreenError(Adafruit_ST7789& lcd, node_ptr<Screen*>& nodeCurr);
     void setErrorMsg(const std::string& errorMsg);
     void draw() override;
     void drawSelUpdate(MenuActions actionMenuSel) override;
+    void buttonPress() override;
 private:
     std::string errorMsg;
     std::vector<std::string> errorLog;

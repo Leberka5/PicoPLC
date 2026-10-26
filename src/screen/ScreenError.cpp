@@ -4,8 +4,8 @@
 /********************************************************************
  * ScreenError methods
  ********************************************************************/
-ScreenError::ScreenError(Adafruit_ST7789& lcd) :
-    Screen(lcd, "Error:") { }
+ScreenError::ScreenError(Adafruit_ST7789& lcd, node_ptr<Screen*>& nodeCurr) :
+    Screen(lcd, nodeCurr, "Error:") { }
 
 void ScreenError::setErrorMsg(const std::string& errorMsg)
 {
@@ -25,6 +25,11 @@ void ScreenError::draw()
 }
 
 void ScreenError::drawSelUpdate(MenuActions actionMenuSel)
+{
+
+}
+
+void ScreenError::buttonPress()
 {
 
 }

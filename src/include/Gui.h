@@ -31,13 +31,12 @@ public:
     static void clearScreen();
     static bool hasButtonPressed();
     static void setButtonPressed();
+    static void drawErrorNotImpl(const std::string& menuName);
+    static Screen* menuCurr;
 private:
     static void initMenus();
-    static inline void drawErrorNotImpl(const std::string& menuName);
     static Adafruit_ST7789 lcd;
     static ScreenError screenError;
-    // TODO: consider rm menuCurr
-    static Screen* menuCurr;
     static node_ptr<Screen*> nodeCurr;
     static tree<Screen*> menuTree;
     static bool inErrorState;       // true if entering menu which does not exist

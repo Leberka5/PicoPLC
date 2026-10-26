@@ -5,6 +5,7 @@
 #include <Adafruit_ST7789.h>
 
 #include "../defines.h"
+#include "../tree/tree.h"
 
 
 // just some mappings for options of Adafruit_ST7789
@@ -43,14 +44,16 @@ enum GuiNumerics
 class Screen
 {
 public:
-    Screen(Adafruit_ST7789& lcd, std::string title);
-    Screen(Adafruit_ST7789& lcd, std::string title, std::vector<std::string> entries, bool hasBackBtn = true);
+    Screen(Adafruit_ST7789& lcd, node_ptr<Screen*>& nodeCurr, std::string title);
+    Screen(Adafruit_ST7789& lcd, node_ptr<Screen*>& nodeCurr, std::string title, std::vector<std::string> entries, bool hasBackBtn = true);
     virtual ~Screen() = default; // virtual in order to call derived class's destructor when deleted
     virtual void draw() = 0;
     virtual void drawSelUpdate(MenuActions actionMenuSel) = 0;
+    virtual void buttonPress() = 0;
 protected:
     uint16_t centerText(uint16_t numChars);
     Adafruit_ST7789& lcd;
+    node_ptr<Screen*>& nodeCurr;
     std::string title;
     std::vector<std::string> entries;
     int16_t currSelEntry;

@@ -1,4 +1,5 @@
 #include "../include/screen/ScreenMenu.h"
+#include "../include/Gui.h"
 
 
 /********************************************************************
@@ -6,10 +7,11 @@
  ********************************************************************/
 ScreenMenu::ScreenMenu(
     Adafruit_ST7789& lcd,
+    node_ptr<Screen*>& nodeCurr,
     const std::string& menuTitle,
     const std::vector<std::string>& menuEntries,
     bool hasBackBtn) :
-    Screen(lcd, menuTitle, menuEntries, hasBackBtn)
+    Screen(lcd, nodeCurr, menuTitle, menuEntries, hasBackBtn)
 {
 
 }
@@ -54,9 +56,11 @@ void ScreenMenu::draw()
 
 void ScreenMenu::drawSelUpdate(MenuActions actionMenuSel)
 {
+    for (auto& entry : entries)
+        Serial.println(entry.c_str());
     // clear out old selection
-    uint8_t oldCursorY = currSelEntry * MENU_SELECTION_HEIGHT + TITLE_HEIGHT;
-    for (int x = 0; x < SCREEN_WIDTH; ++x)
+    int16_t oldCursorY = currSelEntry * MENU_SELECTION_HEIGHT + TITLE_HEIGHT;
+    for (int16_t x = 0; x < SCREEN_WIDTH; ++x)
     {
         lcd.drawPixel(x, oldCursorY, colorBg);
         lcd.drawPixel(x, oldCursorY + MENU_SELECTION_HEIGHT, colorBg);
@@ -73,12 +77,49 @@ void ScreenMenu::drawSelUpdate(MenuActions actionMenuSel)
         currSelEntry = 0;
 
     // draw new selection
-    uint8_t currCursorY = currSelEntry * MENU_SELECTION_HEIGHT + TITLE_HEIGHT;
-    for (int x = 0; x < SCREEN_WIDTH; ++x)
+    int currCursorY = currSelEntry * MENU_SELECTION_HEIGHT + TITLE_HEIGHT;
+    for (int16_t x = 0; x < SCREEN_WIDTH; ++x)
     {
         lcd.drawPixel(x, currCursorY, COLOR_GREEN);
         lcd.drawPixel(x, currCursorY + MENU_SELECTION_HEIGHT, COLOR_GREEN);
     }
+}
+
+void ScreenMenu::buttonPress()
+{
+    Gui::menuCurr = nodeCurr->getData();
+    auto* curr = static_cast<ScreenMenu*>(Gui::menuCurr);
+
+    uint16_t iMenuSel = curr->getMenuSelection();
+
+    // go to parent node if "Back" button i.e. the last menu item is selected
+    bool isBackBtnSel = (iMenuSel == curr->getNumSubMenus() - 1 && nodeCurr->getParent() != nullptr);
+    if (isBackBtnSel)
+    {
+        Serial.println("[PICO] :: INFO :: menu entered (back)");
+        nodeCurr = nodeCurr->getParent();
+        Gui::menuCurr = nodeCurr->getData();
+    }
+    else
+    {
+        std::string menuName = curr->getSubmenuName(iMenuSel);
+        if (nodeCurr->getNumChildren() == 0 || nodeCurr->getNumChildren() < iMenuSel + 1)
+        {
+            // selected menu is not implemented --> draw error msg
+            Serial.println("[PICO] :: ERROR :: menu not implemented!");
+            Gui::drawErrorNotImpl(menuName);
+        }
+        else
+        {
+            // the menu is implemented --> draw menu
+            Serial.print("[PICO] :: INFO :: menu selected: ");
+            Serial.println(menuName.c_str());
+            nodeCurr = nodeCurr->getChild(iMenuSel);
+            Gui::menuCurr = nodeCurr->getData();
+        }
+    }
+    Gui::clearScreen();
+    Gui::menuCurr->draw();
 }
 
 uint16_t ScreenMenu::getMenuSelection() { return currSelEntry; }
