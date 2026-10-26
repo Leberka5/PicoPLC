@@ -46,6 +46,7 @@ public:
     Screen(Adafruit_ST7789& lcd, std::string title);
     virtual ~Screen() = default; // virtual in order to call derived class's destructor when deleted
     virtual void draw() = 0;
+    virtual void drawSelUpdate(MenuActions actionMenuSel) = 0;
 protected:
     uint16_t centerText(uint16_t numChars);
     Adafruit_ST7789& lcd;

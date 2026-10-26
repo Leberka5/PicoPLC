@@ -10,6 +10,7 @@ public:
     ScreenPwm(Adafruit_ST7789& lcd, const std::string &menuTitle);
     ScreenPwm& operator=(const ScreenPwm& other);
     void draw() override;
+    void drawSelUpdate(MenuActions actionMenuSel) override;
 private:
 };
 

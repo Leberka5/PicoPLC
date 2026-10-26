@@ -23,3 +23,8 @@ void ScreenError::draw()
     lcd.setCursor(0, 100);
     lcd.write(errorMsg.c_str());
 }
+
+void ScreenError::drawSelUpdate(MenuActions actionMenuSel)
+{
+
+}

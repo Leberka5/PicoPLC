@@ -5,17 +5,6 @@
 #include "include/Gui.h"
 #include "include/Encoder.h"
 
-// ISR: rotary encoder button press
-INTERRUPT isrEncoderButton()
-{
-    // TODO: keep as small as possible
-    bool isDebounced = (millis() - Encoder::timeLastBtnPress) > DEBOUNCE_DELAY;
-    if (isDebounced)
-    {
-        Gui::enterMenu();
-        Encoder::timeLastBtnPress = millis();
-    }
-}
 
 // check if current menu selection switched (encoder rotation)
 inline void check_menu_switch()
@@ -46,6 +35,18 @@ inline void recv_cmd()
             Serial.println("[PICO] :: INFO :: received command: reboot");
             reset_usb_boot(0, 0);
         }
+    }
+}
+
+// interrupt service routine: rotary encoder button press
+ISR isrEncoderButton()
+{
+    // TODO: keep as small as possible
+    bool isDebounced = (millis() - Encoder::timeLastBtnPress) > DEBOUNCE_DELAY;
+    if (isDebounced)
+    {
+        Gui::enterMenu();
+        Encoder::timeLastBtnPress = millis();
     }
 }
 

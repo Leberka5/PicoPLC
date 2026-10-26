@@ -34,11 +34,11 @@ public:
 private:
     static void initMenus();
     static inline void drawErrorNotImpl(const std::string& menuName);
-    static ScreenError screenError;
-    static ScreenMenu* menuCurr;
     static Adafruit_ST7789 lcd;
-    static tree<ScreenMenu> menuTree;
-    static node_ptr<ScreenMenu> nodeCurr;
+    static ScreenError screenError;
+    static Screen* menuCurr;
+    static node_ptr<Screen*> nodeCurr;
+    static tree<Screen*> menuTree;
     static bool inErrorState;       // true if entering menu which does not exist
     static bool menuEntered;
 };

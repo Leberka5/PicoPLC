@@ -22,9 +22,9 @@ public:
         node* getParent();
         bool isLeaf();
     private:
+        node* parent;
         T data;
         std::vector<node*> children;
-        node* parent;
         bool leaf = true; // i.e. no nodes
     };
 

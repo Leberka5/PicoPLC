@@ -14,6 +14,7 @@ public:
     ScreenError(Adafruit_ST7789& lcd);
     void setErrorMsg(const std::string& errorMsg);
     void draw() override;
+    void drawSelUpdate(MenuActions actionMenuSel) override;
 private:
     std::string errorMsg;
     std::vector<std::string> errorLog;

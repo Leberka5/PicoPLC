@@ -1,5 +1,6 @@
 #include "../include/screen/ScreenPwm.h"
 
+
 ScreenPwm::ScreenPwm(Adafruit_ST7789 &lcd, const std::string &menuTitle) :
     Screen(lcd, menuTitle)
 {
@@ -25,6 +26,11 @@ void ScreenPwm::draw()
     lcd.setCursor(20, 20);
     for (uint16_t x = 0; x < lcd.width(); x++)
     {
-        lcd.pixel(x, x);
+        lcd.drawPixel(x, x, COLOR_GREEN_2);
     }
+}
+
+void ScreenPwm::drawSelUpdate(MenuActions actionMenuSel)
+{
+
 }
