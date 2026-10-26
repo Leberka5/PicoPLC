@@ -25,14 +25,16 @@ class Encoder
 public:
     static void init();
     static EncoderAction readInput();
-    // button vars
     static uint64_t timeLastBtnPress;
 private:
-    // encoder vars
+    static void printCounter();
     static int32_t counter;
     static int32_t lastStateA;
     static int32_t currStateA;
     static uint64_t timeLastAction;
+    static uint8_t lastStateEncoded;
+    static int8_t subSteps;
+    static uint32_t timeLastStateChange;
 };
 
 #endif //DEVBOARD_ENCODER_H

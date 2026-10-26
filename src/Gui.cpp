@@ -1,7 +1,6 @@
 #include "include/Gui.h"
 #include "include/tree/tree.h"
 
-
 /********************************************************************
  * init static member of Gui class
  ********************************************************************/
@@ -12,7 +11,6 @@ ScreenMenu* Gui::menuCurr = nullptr;
 ScreenError Gui::screenError = ScreenError(lcd);
 bool Gui::inErrorState = false;
 bool Gui::menuEntered = false;
-
 
 
 /********************************************************************
