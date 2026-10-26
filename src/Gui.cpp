@@ -8,7 +8,6 @@
 Adafruit_ST7789 Gui::lcd = Adafruit_ST7789(SPI_CS, LCD_DC, LCD_RST);
 tree<Screen*> Gui::menuTree = tree<Screen*>();
 node_ptr<Screen*> Gui::nodeCurr = nullptr;
-Screen* Gui::menuCurr = nullptr;
 ScreenError Gui::screenError = ScreenError(lcd, Gui::nodeCurr);
 bool Gui::inErrorState = false;
 bool Gui::isButtonPressed = false;
@@ -19,14 +18,16 @@ bool Gui::isButtonPressed = false;
  ********************************************************************/
 void Gui::setButtonPressed() { isButtonPressed = true; }
 
-void Gui::changeSelection(const MenuActions actionGui) { menuCurr->drawSelUpdate(actionGui); }
+void Gui::changeSelection(const MenuActions actionGui)
+{
+    nodeCurr->getData()->drawSelUpdate(actionGui);
+}
 
 void Gui::gotoMainMenu()
 {
     nodeCurr = menuTree.getRoot();
-    menuCurr = nodeCurr->getData();
     clearScreen();
-    menuCurr->draw();
+    nodeCurr->getData()->draw();
 }
 
 void Gui::clearScreen() { lcd.fillScreen(COLOR_BLACK); }
@@ -50,12 +51,11 @@ void Gui::init()
     lcd.setTextColor(ST77XX_WHITE);
     lcd.setTextSize(FONT_12x16);
     // draw main menu
-    menuCurr->draw();
+    nodeCurr->getData()->draw();
 }
 
 void Gui::initMenus()
 {
-
     nodeCurr = menuTree.setRoot(new ScreenMenu(lcd, nodeCurr, "Main Menu", std::vector<std::string>({
         "(1) PWM Generator",
         "(2) Analog Read"}), false));
@@ -65,8 +65,6 @@ void Gui::initMenus()
         "On/Off"})));
 
     nodePwm->addNode(new ScreenPwm(lcd, nodeCurr, "Set Frequency", std::vector<std::string>({ "100" })));
-
-    menuCurr = nodeCurr->getData();
 }
 
 void Gui::drawErrorNotImpl(const std::string& menuName)

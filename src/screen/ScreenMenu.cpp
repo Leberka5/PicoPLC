@@ -87,39 +87,37 @@ void ScreenMenu::drawSelUpdate(MenuActions actionMenuSel)
 
 void ScreenMenu::buttonPress()
 {
-    Gui::menuCurr = nodeCurr->getData();
-    auto* curr = static_cast<ScreenMenu*>(Gui::menuCurr);
+    Screen* menuCurr = nodeCurr->getData();
+    ScreenMenu* screenMenuCurr = static_cast<ScreenMenu*>(menuCurr);
 
-    uint16_t iMenuSel = curr->getMenuSelection();
+    uint16_t iMenuSel = screenMenuCurr->getMenuSelection();
 
     // go to parent node if "Back" button i.e. the last menu item is selected
-    bool isBackBtnSel = (iMenuSel == curr->getNumSubMenus() - 1 && nodeCurr->getParent() != nullptr);
+    bool isBackBtnSel = (iMenuSel == screenMenuCurr->getNumSubMenus() - 1 && nodeCurr->getParent() != nullptr);
     if (isBackBtnSel)
     {
         Serial.println("[PICO] :: INFO :: menu entered (back)");
         nodeCurr = nodeCurr->getParent();
-        Gui::menuCurr = nodeCurr->getData();
+        menuCurr = nodeCurr->getData();
     }
     else
     {
-        std::string menuName = curr->getSubmenuName(iMenuSel);
+        std::string menuName = screenMenuCurr->getSubmenuName(iMenuSel);
         if (nodeCurr->getNumChildren() == 0 || nodeCurr->getNumChildren() < iMenuSel + 1)
         {
             // selected menu is not implemented --> draw error msg
             Serial.println("[PICO] :: ERROR :: menu not implemented!");
             Gui::drawErrorNotImpl(menuName);
+            return;
         }
-        else
-        {
-            // the menu is implemented --> draw menu
-            Serial.print("[PICO] :: INFO :: menu selected: ");
-            Serial.println(menuName.c_str());
-            nodeCurr = nodeCurr->getChild(iMenuSel);
-            Gui::menuCurr = nodeCurr->getData();
-        }
+        // the menu is implemented --> draw menu
+        Serial.print("[PICO] :: INFO :: menu selected: ");
+        Serial.println(menuName.c_str());
+        nodeCurr = nodeCurr->getChild(iMenuSel);
+        menuCurr = nodeCurr->getData();
     }
     Gui::clearScreen();
-    Gui::menuCurr->draw();
+    menuCurr->draw();
 }
 
 uint16_t ScreenMenu::getMenuSelection() { return currSelEntry; }

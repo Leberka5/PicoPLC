@@ -32,7 +32,7 @@ public:
     static bool hasButtonPressed();
     static void setButtonPressed();
     static void drawErrorNotImpl(const std::string& menuName);
-    static Screen* menuCurr;
+    // static Screen* menuCurr;
 private:
     static void initMenus();
     static Adafruit_ST7789 lcd;
